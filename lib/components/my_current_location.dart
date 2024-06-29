@@ -1,25 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/models/restaurant.dart';
+import 'package:provider/provider.dart';
 
 class MyCurrentLocation extends StatelessWidget {
-  const MyCurrentLocation({super.key});
+  MyCurrentLocation({super.key});
+
+  final TextEditingController textController = TextEditingController();
 
   void openLocationSearchBox(BuildContext context) {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text("Your Location"),
-          content: const  TextField(
-            decoration: InputDecoration(
-              hintText: "Search address..."
+          content: TextField(
+            decoration: const InputDecoration(
+              hintText: "Enter address..."
             ),
+            controller: textController,
           ),
           actions: [
             MaterialButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  Navigator.pop(context);
+                  textController.clear();
+                },
               child: const Text("Cancel"),
             ),
             MaterialButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                String newAddress = textController.text;
+                context.read<Restaurant>().updateDeliveryAddress(newAddress);
+                Navigator.pop(context);
+                textController.clear();
+              },
               child: const Text("Save"),
             ),
           ],
@@ -44,13 +57,13 @@ class MyCurrentLocation extends StatelessWidget {
             onTap: () => openLocationSearchBox(context),
             child: Row(
               children: [
-                Text(
-                  "6901 Hollywood Blv",
+                Consumer<Restaurant>(builder: (context, restaurant, child) => Text(
+                  restaurant.deliveryAddress,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.inversePrimary,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
+                ),),
 
                 Icon(Icons.keyboard_arrow_down_rounded),
               ],
